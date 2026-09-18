@@ -11,6 +11,7 @@ import {
   processPluginsForDeployment,
   getNormalizedPluginMergeKey,
   disablePlugins,
+  applyDisabledPlugins,
   type DynamicPluginsConfig,
 } from "../../utils/plugin-metadata.js";
 import { envsubst } from "../../utils/common.js";
@@ -207,9 +208,7 @@ export class RHDHDeployment {
 
     // Disable default plugins (PR builds only) — covers wrapper + OCI DPDY forms
     if (process.env.GIT_PR_NUMBER) {
-      result = deepMerge(result, disabledPlugins, {
-        arrayMergeStrategy: "concat",
-      }) as DynamicPluginsConfig;
+      result = applyDisabledPlugins(result, disabledPlugins);
     }
 
     return result;
