@@ -130,8 +130,8 @@ export class RHDHDeployment {
   } as const;
 
   /**
-   * Merges package defaults + auth + optional new-frontend-system defaults +
-   * optional user config into a single dynamic plugins configuration.
+   * Merges package defaults, auth, and optional user config into a single
+   * dynamic plugins configuration.
    */
   private async _mergeBaseConfigs(
     userConfigPath?: string,
@@ -140,9 +140,6 @@ export class RHDHDeployment {
     const paths = [
       DEFAULT_CONFIG_PATHS.dynamicPlugins,
       authConfig.dynamicPlugins,
-      ...(this.deploymentConfig.useNewFrontendSystem
-        ? [DEFAULT_CONFIG_PATHS.newFrontendSystem.dynamicPlugins]
-        : []),
       ...(userConfigPath ? [userConfigPath] : []),
     ];
     return await mergeYamlFilesIfExists(paths, RHDHDeployment.pluginMergeOpts);
@@ -230,17 +227,7 @@ export class RHDHDeployment {
       this.deploymentConfig.version,
     );
     this._log(`Helm chart version resolved to: ${chartVersion}`);
-    const helmValuePaths = [
-      DEFAULT_CONFIG_PATHS.helm.valueFile,
-      ...(this.deploymentConfig.useNewFrontendSystem
-        ? [DEFAULT_CONFIG_PATHS.newFrontendSystem.valueFile]
-        : []),
-      valueFile,
-      ...(this.deploymentConfig.useNewFrontendSystem &&
-      fs.existsSync(WorkspacePaths.valueFileAppNext)
-        ? [WorkspacePaths.valueFileAppNext]
-        : []),
-    ];
+    const helmValuePaths = [DEFAULT_CONFIG_PATHS.helm.valueFile, valueFile];
     const valueFileObject = (await mergeYamlFilesIfExists(
       helmValuePaths,
     )) as Record<string, Record<string, unknown>>;
@@ -494,10 +481,6 @@ export class RHDHDeployment {
       "helm";
 
     const namespace = input.namespace ?? this.deploymentConfig.namespace;
-    const useNewFrontendSystem =
-      input.useNewFrontendSystem ??
-      (namespace.endsWith("-app-next") ||
-        process.env.USE_NEW_FRONTEND_SYSTEM === "true");
 
     const base: DeploymentConfigBase = {
       version,
@@ -507,7 +490,6 @@ export class RHDHDeployment {
       secrets: input.secrets ?? WorkspacePaths.secrets,
       dynamicPlugins: input.dynamicPlugins ?? WorkspacePaths.dynamicPlugins,
       disablePlugins: input.disablePlugins ?? [],
-      useNewFrontendSystem,
     };
 
     if (method === "helm") {

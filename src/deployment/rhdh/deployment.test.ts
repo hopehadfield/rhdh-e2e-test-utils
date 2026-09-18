@@ -50,8 +50,8 @@ describe("dynamic-plugins merge (no user config path)", () => {
     );
   });
 
-  it("keeps user app-auth OCI ref over NFS defaults for same logical plugin", () => {
-    const nfsDefaults: Record<string, unknown> = {
+  it("keeps user app-auth OCI ref over package defaults for same logical plugin", () => {
+    const packageDefaults: Record<string, unknown> = {
       plugins: [
         {
           package:
@@ -69,7 +69,7 @@ describe("dynamic-plugins merge (no user config path)", () => {
         },
       ],
     };
-    const merged = deepMerge(nfsDefaults, userPlugins, {
+    const merged = deepMerge(packageDefaults, userPlugins, {
       arrayMergeStrategy: {
         byKey: "package",
         normalizeKey: (item) =>
@@ -84,7 +84,7 @@ describe("dynamic-plugins merge (no user config path)", () => {
     );
   });
 
-  it("does not duplicate includes when NFS layer omits includes", () => {
+  it("does not duplicate includes when a package layer omits includes", () => {
     const common: Record<string, unknown> = {
       includes: ["dynamic-plugins.default.yaml"],
       plugins: [],
