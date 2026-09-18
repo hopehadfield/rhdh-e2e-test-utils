@@ -126,7 +126,11 @@ export class RHDHDeployment {
 
   /** Shared merge strategy for dynamic plugin arrays. */
   private static readonly pluginMergeOpts = {
-    arrayMergeStrategy: { byKey: "package" },
+    arrayMergeStrategy: {
+      byKey: "package",
+      normalizeKey: (item: unknown) =>
+        getNormalizedPluginMergeKey(item as Record<string, unknown>),
+    },
   } as const;
 
   /**
